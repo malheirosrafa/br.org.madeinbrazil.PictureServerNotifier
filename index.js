@@ -9,6 +9,13 @@
 
 var amqp = require('amqplib/callback_api');
 
+const rabbitmqServerIp = '104.131.106.29';
+
+function onError(error) {
+	console.log('problem with request: ' + error.message);
+}
+
+
 amqp.connect('amqp://mqadmin:EmbelezApp2015@queue.embelezapp.com.br', function(err, conn) {
   conn.createChannel(function(err, ch) {
     
@@ -25,33 +32,41 @@ amqp.connect('amqp://mqadmin:EmbelezApp2015@queue.embelezapp.com.br', function(e
 		console.log(" [x] Received %s", msg.content.toString());
    
 	        var http = require('http')
- 
-	        var options = {
-	    	    host: '104.131.106.29',
-	  	    port: 80,
-	  	    path: '/'+msg.content.toString()+'/normal.jpg',
-	  	    method: 'PURGE'
-	        };
+		
+		var imagesPaths = ['/'+msg.content.toString()+'/normal.jpg', 
+                                   '/'+msg.content.toString()+'/thumb.jpg',
+                                   '/'+msg.content.toString()+'/large.jpg',
+                                   '/'+msg.content.toString()+'/medium.jpg',
+                                   '/'+msg.content.toString()+'/small.jpg'
+                                  ]; 		
+
+		for(var index in imagesPaths) {
+	        	var options = {
+	    		    host: rabbitmqServerIp,
+	  		    port: 80,
+	  		    path: imagesPaths[index],
+	  		    method: 'PURGE'
+	        	};
 	
- 	  	var req = http.request(options, function(res) {
-   	            console.log('STATUS: ' + res.statusCode);
-		    console.log('HEADERS: ' + JSON.stringify(res.headers));
-		    res.setEncoding('utf8');
-		    res.on('data', function (chunk) {
-		   	 console.log('BODY: ' + chunk);
-  	            });
-                });
+ 	  		var req = http.request(options, function(res) {
+   	        	    console.log('STATUS: ' + res.statusCode);
+			    console.log('HEADERS: ' + JSON.stringify(res.headers));
+			    res.setEncoding('utf8');
+			    res.on('data', function (chunk) {
+		   		 console.log('BODY: ' + chunk);
+  	            	    });
+                	});
 
-        	req.on('error', function(e) {
-	    	    console.log('problem with request: ' + e.message);
-        	});
+        		req.on('error', onError);
 
-        	//write data to request body
-        	req.write('data\n');
-        	req.write('data\n');
-        	req.end();
+        		//write data to request body
+        		req.write('data\n');
+        		req.write('data\n');
+        		req.end();
+		}
    
-        }, {noAck: true});
+        }, {noAck: false});
      });
   });
 });
+
