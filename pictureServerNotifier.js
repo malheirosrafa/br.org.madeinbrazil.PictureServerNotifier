@@ -9,7 +9,7 @@
 
 var amqp = require('amqplib/callback_api');
 
-const rabbitmqServerIp = '104.131.106.29';
+const cacheServerIp = 'localhost';
 
 function onError(error) {
 	console.log('problem with request: ' + error.message);
@@ -42,7 +42,7 @@ amqp.connect('amqp://mqadmin:EmbelezApp2015@queue.embelezapp.com.br', function(e
 
 		for(var index in imagesPaths) {
 	        	var options = {
-	    		    host: rabbitmqServerIp,
+	    		    host: cacheServerIp,
 	  		    port: 80,
 	  		    path: imagesPaths[index],
 	  		    method: 'PURGE'
