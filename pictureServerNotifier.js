@@ -16,7 +16,7 @@ function onError(error) {
 }
 
 
-amqp.connect('amqp://mqadmin:EmbelezApp2015@queue.embelezapp.com.br', function(err, conn) {
+amqp.connect('amqp://'+process.env.USER_NAME+':'+process.env.PASSWORD+'@queue.embelezapp.com.br', function(err, conn) {
 	conn.createChannel(function(err, ch) {
 
     	var ex = 'exchange';
